@@ -1,4 +1,3 @@
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' as ll;
 
@@ -99,6 +98,9 @@ class NavigationState {
   }
 }
 
+/// Navigation state shown on screen. Starting the background service and
+/// alerts is done by the map screen, which knows about permissions and
+/// whether the app is visible.
 class NavigationNotifier
     extends StateNotifier<NavigationState> {
   NavigationNotifier()
@@ -120,9 +122,6 @@ class NavigationNotifier
     required bool simulate,
     required ll.LatLng startPos,
   }) {
-    FlutterBackgroundService()
-        .startService();
-
     state = state.copyWith(
       isNavigating: true,
       isSimulating: simulate,
@@ -136,11 +135,6 @@ class NavigationNotifier
   }
 
   void stopNavigation() {
-    FlutterBackgroundService()
-        .invoke(
-          'stopService',
-        );
-
     state = state.copyWith(
       isNavigating: false,
       isSimulating: false,
@@ -182,23 +176,6 @@ class NavigationNotifier
     HazardFeature? hazard, {
     double? distanceAheadMeters,
   }) {
-    if (hazard != null) {
-      final previousHazard =
-          state.activeApproachingHazard;
-
-      final isNewHazard =
-          previousHazard == null ||
-          previousHazard.stableKey !=
-              hazard.stableKey;
-
-      if (isNewHazard) {
-        FlutterBackgroundService()
-            .invoke(
-              'playHazardAlert',
-            );
-      }
-    }
-
     state = state.copyWith(
       activeApproachingHazard: hazard,
       activeHazardDistanceMeters:
