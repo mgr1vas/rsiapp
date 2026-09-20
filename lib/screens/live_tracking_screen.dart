@@ -77,7 +77,9 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
 
   /// GPS fixes further than this from the route are drawn where they are
   /// instead of on the route line.
-  static const double _maxSnapMeters = 35;
+  /// Beyond this the car is no longer treated as on the route, both for
+  /// drawing and for rerouting.
+  static const double _maxSnapMeters = OffRouteDetector.defaultThresholdMeters;
   static const double _arrivalMeters = 18;
 
   /// Share of the remaining turn applied each frame, to smooth the heading.
@@ -963,9 +965,9 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     }
 
     // A newer attempt is in charge, or the trip ended while we waited.
-    final stale = sequence != _rerouteSequence;
-    if (!mounted || stale || !ref.read(navigationProvider).isNavigating) {
-      if (!stale) _isRerouting = false;
+    if (!_rerouteStillWanted(sequence)) {
+      // A newer attempt, or a stop, is in charge of the flag now.
+      if (mounted && sequence == _rerouteSequence) _isRerouting = false;
       return;
     }
 
@@ -978,7 +980,16 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
       return;
     }
 
-    await _followNewRoute(details, from);
+    await _followNewRoute(details, from, sequence);
+  }
+
+  /// Whether the reroute numbered [sequence] is still the one in charge and
+  /// the trip is still running. Checked again after every await, because a
+  /// map call can take long enough for the driver to end the trip.
+  bool _rerouteStillWanted(int sequence) {
+    return mounted &&
+        sequence == _rerouteSequence &&
+        ref.read(navigationProvider).isNavigating;
   }
 
   /// Puts a replacement route in place of the one being driven, without
@@ -986,6 +997,7 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
   Future<void> _followNewRoute(
     FullRouteDetails details,
     ll.LatLng from,
+    int sequence,
   ) async {
     final now = DateTime.now();
     final progress = RouteProgress(details.polyline);
@@ -1020,13 +1032,24 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
       _remainingDurationMinutes = details.durationMinutes;
     });
 
-    final map = _map;
-    if (map != null) {
-      await _routeLayer.show(map, details.polyline);
-      await _routeLayer.setTravelledFraction(map, 0, force: true);
-    }
-    await _drawHazards(details.dbHazards);
+    try {
+      final map = _map;
+      if (map != null) {
+        await _routeLayer.show(map, details.polyline);
+        if (!_rerouteStillWanted(sequence)) return;
 
+        await _routeLayer.setTravelledFraction(map, 0, force: true);
+        if (!_rerouteStillWanted(sequence)) return;
+      }
+
+      await _drawHazards(details.dbHazards);
+    } catch (error) {
+      debugPrint('RSI could not draw the new route: $error');
+    }
+
+    // Never save after the driver has ended the trip: that would put the
+    // session back after it was cleared, and offer to resume it later.
+    if (!_rerouteStillWanted(sequence)) return;
     _saveSessionProgress(now, force: true);
   }
 

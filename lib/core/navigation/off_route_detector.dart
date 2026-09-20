@@ -20,12 +20,18 @@ enum RouteFix {
 /// route. Only a run of fixes clearly off the line counts as a wrong turn.
 class OffRouteDetector {
   OffRouteDetector({
-    this.thresholdMeters = 50,
+    this.thresholdMeters = defaultThresholdMeters,
     this.requiredFixes = 3,
     this.cooldown = const Duration(seconds: 12),
   });
 
   /// How far off the line a fix has to be to count as off the route.
+  ///
+  /// The same distance decides whether the car is drawn on the route, so
+  /// that the map and the guidance never disagree about which road the
+  /// driver is on.
+  static const double defaultThresholdMeters = 50;
+
   final double thresholdMeters;
 
   /// How many of those fixes in a row are needed before rerouting.
