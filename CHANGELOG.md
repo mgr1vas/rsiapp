@@ -1,11 +1,109 @@
 # Changelog
 
-Notable changes to Road Safety Insights. All accident, road segment and rental
-data in this release is mock data for development.
+Notable changes to Road Safety Insights. All accident, road segment, hazard
+and rental data in these releases is mock data for development.
 
-## [Unreleased] - 2026-09-12
+## [0.2.0] - 2026-09-14
 
-Branch: `feature/safety-map-rentals-onboarding`
+Version code 2. Branch: `feature/safety-map-rentals-onboarding`
+
+### Added
+
+- **Hazard alerts outside the app.**
+  - When a hazard is announced while the app is in the background, a
+    heads-up notification appears (channel "Προειδοποιήσεις κινδύνου",
+    `flutter_local_notifications`).
+  - Notification permission is requested when navigation starts
+    (Android 13+).
+  - The ongoing navigation notification shows the next instruction and the
+    arrival time, updated at most once a second.
+- **Navigation survives switching apps.**
+  - The active trip (origin, destination, simulation or live GPS, speed and
+    progress) is saved every 5 seconds.
+  - On the next launch it resumes if it is less than 3 hours old.
+  - Back during navigation no longer closes the app. It floats the app in
+    picture-in-picture (see below), or otherwise sends it to the
+    background.
+- **Picture-in-picture during navigation (Android).**
+  - Leaving the app during a trip (home, recents or back) shrinks it into a
+    floating 3:4 window. This is automatic on Android 12+; on Android 8–11
+    it happens through `onUserLeaveHint`.
+  - The floating window shows only the map, the car and one strip with the
+    next turn, which turns orange with the distance when a hazard is ahead.
+  - The camera always follows the car there, slightly zoomed out.
+  - Enabled only while navigating (`supportsPictureInPicture`, method
+    channel in `MainActivity`).
+- **Demo routes for testing alerts.** Available in the route planner; they
+  start in simulation mode:
+  - Άρτα: 3.3 km from the old bridge to the General Hospital, with 10 mock
+    hazards (`assets/data/arta_hazards.geojson`).
+  - Πύλη Βοιωτίας: 2.7 km to the Ζωοδόχου Πηγής monastery.
+  - Πύλη → Θήβα: 26 km on regional roads and the ΕΟ3. The two Πύλη routes
+    share 14 mock hazards (`assets/data/pyli_hazards.geojson`).
+
+  Hazards sit on the OSRM demo routes, with street names from OSRM and
+  OpenStreetMap. Hide the routes with `--dart-define=RSI_DEMO_ROUTES=false`.
+- **Pick a destination on the map.** A long press drops a pin, names it
+  with the nearest address and routes to that exact point.
+- **Tests.** 117 unit and widget tests (`flutter test`).
+
+### Changed
+
+- **Place search** uses the Mapbox Search Box API instead of Geocoding v5.
+  - Finds businesses and landmarks, e.g. "Γενικό Νοσοκομείο Άρτας".
+  - Results show two lines (name, then postcode and town), a type icon and
+    the distance.
+  - Routes end at the entrance point (`routable_points`) when Mapbox has
+    one.
+  - The search uses the `MAPBOX_ACCESS_TOKEN` define instead of a token
+    written into the source.
+- Turn instructions fall back to the road number (e.g. ΕΟ3) when a road has
+  no name.
+- **Smoother simulation.**
+  - The car moves by elapsed time at a steady speed instead of jumping from
+    point to point on a timer.
+  - The camera updates every frame without overlapping animations, and the
+    heading eases through corners.
+  - Speeds changed: 1× is now 50 km/h; the old 1× was about 280 km/h.
+- Live GPS positions within 35 m of the route are snapped onto it and eased
+  between fixes.
+- **Route line.**
+  - The line is a map style layer. The part already driven is trimmed with
+    `line-trim-offset`; the line is no longer deleted and redrawn every few
+    points.
+  - While following, a car arrow drawn by Flutter sits at the camera's
+    follow point.
+- Guidance measures the route once (`RouteProgress`, `RouteGuidance`) rather
+  than re-projecting every step and hazard on each update.
+- The hazard alert card stays until the driver has passed the hazard (was
+  7 seconds).
+- The background service uses only the `location` foreground-service type,
+  and only starts once location access is granted.
+
+### Removed
+
+- `just_audio` and the hazard sound. The audio file was never bundled, so it
+  never played. Alerts now use vibration, and the notification sound when
+  the app is in the background.
+
+### Fixed
+
+- Hazard alerts during navigation only ever came from the Naxos data file.
+  All hazard files are now loaded.
+- Switching to another app during navigation could drop the driver back to
+  the route planner. The trip is now resumed (see Added).
+- The route line flickered and started behind or ahead of the car while
+  driving.
+- In split screen, landscape or a floating window, the car was drawn in the
+  wrong place while following it. The space kept clear above and below the
+  car was a fixed 150 and 240 dp. It is now a share of the map's height
+  (`FollowViewport`), with the full-size phone layout unchanged.
+- Hazard markers, the destination pin and the car marker are redrawn when
+  Android rebuilds the map while the app is in the background.
+
+## [0.1.0] - 2026-09-12
+
+Version code 1.
 
 ### Added
 
@@ -65,7 +163,7 @@ Branch: `feature/safety-map-rentals-onboarding`
   Insights", and a shield-and-road adaptive launcher icon.
 - **Developer tool.** `tool/snap_road_segments.py` snaps the mock road
   segments onto real roads using OSRM map matching.
-- **Tests.** 73 unit and widget tests (`flutter test`).
+- **Tests.** 80 unit and widget tests (`flutter test`).
 
 ### Changed
 
