@@ -1,11 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/navigation_session.dart';
+
 /// Settings saved on the device between app launches.
 class AppPreferences {
   AppPreferences._(this._preferences);
 
   static const String _onboardingCompletedKey = 'onboarding_completed';
   static const String _useDeviceLocationKey = 'use_device_location';
+  static const String _navigationSessionKey = 'navigation_session';
 
   final SharedPreferences _preferences;
 
@@ -29,5 +32,20 @@ class AppPreferences {
 
   Future<void> saveUseDeviceLocation(bool value) async {
     await _preferences.setBool(_useDeviceLocationKey, value);
+  }
+
+  /// The trip that was being navigated, if the app was closed during one.
+  NavigationSession? get navigationSession {
+    return NavigationSession.tryDecode(
+      _preferences.getString(_navigationSessionKey),
+    );
+  }
+
+  Future<void> saveNavigationSession(NavigationSession session) async {
+    await _preferences.setString(_navigationSessionKey, session.encode());
+  }
+
+  Future<void> clearNavigationSession() async {
+    await _preferences.remove(_navigationSessionKey);
   }
 }
