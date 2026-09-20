@@ -1,7 +1,7 @@
 name: rsi
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: ^3.11.1
@@ -14,7 +14,7 @@ dependencies:
   http: ^1.2.0
   geolocator: ^10.1.0
   flutter_background_service: ^5.0.0
-  just_audio: ^0.9.36
+  flutter_local_notifications: ^19.4.0
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.5.5
 
@@ -27,6 +27,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/naxos_hazards.geojson
+    - assets/data/arta_hazards.geojson
+    - assets/data/pyli_hazards.geojson
     - assets/data/rentals.json
     - assets/data/accidents.geojson
     - assets/data/road_segments.geojson
