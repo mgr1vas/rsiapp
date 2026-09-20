@@ -1,0 +1,235 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.975725,
+          39.153722
+        ]
+      },
+      "properties": {
+        "id": "arta_1",
+        "hazardType": "Συγκρούσεις σε στενό δρόμο με σταθμευμένα οχήματα",
+        "locationDescription": "Οδός Τάκη Βαφιά, Άρτα",
+        "nearestArea": "Τάκη Βαφιά, Άρτα",
+        "severity": "υλικές ζημιές",
+        "date": "2025-11-04",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 80.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.977601,
+          39.156004
+        ]
+      },
+      "properties": {
+        "id": "arta_2",
+        "hazardType": "Παράσυρση πεζού κοντά σε σχολείο",
+        "locationDescription": "Οδός Γώγου Μπακόλα, Άρτα",
+        "nearestArea": "Γώγου Μπακόλα, Άρτα",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2025-10-17",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 2,
+        "recentAccidents": 1,
+        "radiusMeters": 100.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.98016,
+          39.157144
+        ]
+      },
+      "properties": {
+        "id": "arta_3",
+        "hazardType": "Πλάγια σύγκρουση σε διασταύρωση χωρίς φανάρια",
+        "locationDescription": "Οδός Καμηλών, Άρτα",
+        "nearestArea": "Καμηλών, Άρτα",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-02-09",
+        "weatherFactor": "Βροχή",
+        "totalAccidents": 4,
+        "recentAccidents": 2,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.984109,
+          39.158403
+        ]
+      },
+      "properties": {
+        "id": "arta_4",
+        "hazardType": "Συγκρούσεις στο πίσω μέρος σε ανηφόρα",
+        "locationDescription": "Οδός Τζουμέρκων, Άρτα",
+        "nearestArea": "Τζουμέρκων, Άρτα",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2025-12-21",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 5,
+        "recentAccidents": 2,
+        "radiusMeters": 100.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.987329,
+          39.158339
+        ]
+      },
+      "properties": {
+        "id": "arta_5",
+        "hazardType": "Απότομη στροφή με κακή ορατότητα",
+        "locationDescription": "Οδός 3/40 Σύνταγμα Ευζώνων, Άρτα",
+        "nearestArea": "3/40 Σύνταγμα Ευζώνων, Άρτα",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2026-01-30",
+        "weatherFactor": "Ομίχλη",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.987731,
+          39.154803
+        ]
+      },
+      "properties": {
+        "id": "arta_6",
+        "hazardType": "Υψηλές ταχύτητες σε ευθεία",
+        "locationDescription": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "nearestArea": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-03-12",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 6,
+        "recentAccidents": 2,
+        "radiusMeters": 120.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.991992,
+          39.151222
+        ]
+      },
+      "properties": {
+        "id": "arta_7",
+        "hazardType": "Εκτροπή οχήματος σε ολισθηρό οδόστρωμα",
+        "locationDescription": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "nearestArea": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "severity": "θανατηφόρο",
+        "date": "2025-09-02",
+        "weatherFactor": "Βροχή",
+        "totalAccidents": 2,
+        "recentAccidents": 1,
+        "radiusMeters": 120.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.994348,
+          39.149484
+        ]
+      },
+      "properties": {
+        "id": "arta_8",
+        "hazardType": "Συγκρούσεις σε έξοδο προς το νοσοκομείο",
+        "locationDescription": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "nearestArea": "Δρόμος προς το Γενικό Νοσοκομείο Άρτας",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-04-05",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 4,
+        "recentAccidents": 3,
+        "radiusMeters": 100.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.98226,
+          39.15953
+        ]
+      },
+      "properties": {
+        "id": "arta_9",
+        "hazardType": "Παράσυρση πεζού στην Πλατεία Κιλκίς",
+        "locationDescription": "Οδός Νικολάου Σκουφά, Άρτα",
+        "nearestArea": "Νικολάου Σκουφά, Άρτα",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-05-18",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 2,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.99563,
+          39.15876
+        ]
+      },
+      "properties": {
+        "id": "arta_10",
+        "hazardType": "Συγκρούσεις λεωφορείων στην είσοδο του ΚΤΕΛ",
+        "locationDescription": "Οδός Κώστα Κρυστάλλη, Άρτα",
+        "nearestArea": "Κώστα Κρυστάλλη, Άρτα",
+        "severity": "υλικές ζημιές",
+        "date": "2025-08-26",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    }
+  ]
+}

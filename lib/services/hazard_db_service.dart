@@ -10,8 +10,12 @@ import '../models/hazard_model.dart';
 class HazardDbService {
   HazardDbService._();
 
-  static const String _databaseAsset =
-      'assets/data/naxos_hazards.geojson';
+  static const List<String> _databaseAssets = [
+    'assets/data/naxos_hazards.geojson',
+    // Mock hazards along the demo routes, for testing alerts.
+    'assets/data/arta_hazards.geojson',
+    'assets/data/pyli_hazards.geojson',
+  ];
 
   static List<HazardFeature> _cachedHazards = [];
   static bool _initialized = false;
@@ -23,7 +27,7 @@ class HazardDbService {
   static List<HazardFeature> get hazards =>
       List.unmodifiable(_cachedHazards);
 
-  /// Loads and parses the local GeoJSON accident database.
+  /// Loads and parses the local GeoJSON accident databases.
   ///
   /// Malformed individual records are ignored instead of causing the
   /// entire accident database to fail.
@@ -34,73 +38,79 @@ class HazardDbService {
       return List.unmodifiable(_cachedHazards);
     }
 
-    try {
-      final jsonString = await rootBundle.loadString(
-        _databaseAsset,
-      );
+    final parsedHazards = <HazardFeature>[];
+    var loadedAnyAsset = false;
 
-      final decoded = jsonDecode(jsonString);
-
-      if (decoded is! Map<String, dynamic>) {
-        throw const FormatException(
-          'Hazard database must contain a GeoJSON object.',
-        );
-      }
-
-      final rawFeatures = decoded['features'];
-
-      if (rawFeatures is! List) {
-        throw const FormatException(
-          'Hazard database does not contain a valid features array.',
-        );
-      }
-
-      final parsedHazards = <HazardFeature>[];
-
-      for (final rawFeature in rawFeatures) {
-        if (rawFeature is! Map) {
-          continue;
-        }
-
-        try {
-          final feature = HazardFeature.fromJson(
-            Map<String, dynamic>.from(rawFeature),
+    for (final asset in _databaseAssets) {
+      try {
+        parsedHazards.addAll(await _loadAsset(asset));
+        loadedAnyAsset = true;
+      } catch (error) {
+        // One broken file should not hide the hazards in the others.
+        if (kDebugMode) {
+          debugPrint(
+            'Hazard database load error in $asset: $error',
           );
-
-          parsedHazards.add(feature);
-        } catch (error) {
-          // One malformed accident record should not stop
-          // the rest of the database from loading.
-          if (kDebugMode) {
-            debugPrint(
-              'Skipping invalid hazard record: $error',
-            );
-          }
         }
       }
-
-      _cachedHazards = parsedHazards;
-      _initialized = true;
-
-      if (kDebugMode) {
-        debugPrint(
-          'Loaded ${_cachedHazards.length} hazard records.',
-        );
-      }
-
-      return List.unmodifiable(_cachedHazards);
-    } catch (error) {
-      _cachedHazards = [];
-      _initialized = false;
-
-      if (kDebugMode) {
-        debugPrint(
-          'Hazard database load error: $error',
-        );
-      }
-
-      return const [];
     }
+
+    _cachedHazards = parsedHazards;
+    _initialized = loadedAnyAsset;
+
+    if (kDebugMode) {
+      debugPrint(
+        'Loaded ${_cachedHazards.length} hazard records.',
+      );
+    }
+
+    return List.unmodifiable(_cachedHazards);
+  }
+
+  static Future<List<HazardFeature>> _loadAsset(String asset) async {
+    final jsonString = await rootBundle.loadString(asset);
+
+    final decoded = jsonDecode(jsonString);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Hazard database must contain a GeoJSON object.',
+      );
+    }
+
+    final rawFeatures = decoded['features'];
+
+    if (rawFeatures is! List) {
+      throw const FormatException(
+        'Hazard database does not contain a valid features array.',
+      );
+    }
+
+    final parsedHazards = <HazardFeature>[];
+
+    for (final rawFeature in rawFeatures) {
+      if (rawFeature is! Map) {
+        continue;
+      }
+
+      try {
+        parsedHazards.add(
+          HazardFeature.fromJson(
+            Map<String, dynamic>.from(rawFeature),
+          ),
+        );
+      } catch (error) {
+        // One malformed accident record should not stop
+        // the rest of the database from loading.
+        if (kDebugMode) {
+          debugPrint(
+            'Skipping invalid hazard record: $error',
+          );
+        }
+      }
+    }
+
+    return parsedHazards;
   }
 
   /// Returns hazards whose safety radius intersects the actual route line.

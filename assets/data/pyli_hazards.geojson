@@ -1,0 +1,327 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.49514,
+          38.214235
+        ]
+      },
+      "properties": {
+        "id": "pyli_1",
+        "hazardType": "Στενός δρόμος μέσα στο χωριό με κακή ορατότητα",
+        "locationDescription": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "nearestArea": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "severity": "υλικές ζημιές",
+        "date": "2025-10-11",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 2,
+        "recentAccidents": 1,
+        "radiusMeters": 80.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.488686,
+          38.216084
+        ]
+      },
+      "properties": {
+        "id": "pyli_2",
+        "hazardType": "Έξοδος οχημάτων από αγροτικό δρόμο",
+        "locationDescription": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "nearestArea": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-01-19",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 100.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.480794,
+          38.216962
+        ]
+      },
+      "properties": {
+        "id": "pyli_3",
+        "hazardType": "Απότομη στροφή χωρίς προστατευτικό κιγκλίδωμα",
+        "locationDescription": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "nearestArea": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2025-12-03",
+        "weatherFactor": "Ομίχλη",
+        "totalAccidents": 2,
+        "recentAccidents": 1,
+        "radiusMeters": 120.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.472242,
+          38.214892
+        ]
+      },
+      "properties": {
+        "id": "pyli_4",
+        "hazardType": "Διασταύρωση κοντά στην είσοδο της μονής",
+        "locationDescription": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "nearestArea": "Δρόμος προς Ι.Μ. Ζωοδόχου Πηγής, Πύλη Βοιωτίας",
+        "severity": "υλικές ζημιές",
+        "date": "2026-04-12",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 2,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.499225,
+          38.215828
+        ]
+      },
+      "properties": {
+        "id": "pyli_5",
+        "hazardType": "Συγκρούσεις στην έξοδο του χωριού",
+        "locationDescription": "Φυλής - Πύλης, Πύλη Βοιωτίας",
+        "nearestArea": "Φυλής - Πύλης, Πύλη Βοιωτίας",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2025-11-22",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.493849,
+          38.221291
+        ]
+      },
+      "properties": {
+        "id": "pyli_6",
+        "hazardType": "Ορεινές στροφές με χαλίκι στο οδόστρωμα",
+        "locationDescription": "Δάφνης - Πύλης, Πύλη Βοιωτίας",
+        "nearestArea": "Δάφνης - Πύλης, Πύλη Βοιωτίας",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2026-02-14",
+        "weatherFactor": "Βροχή",
+        "totalAccidents": 4,
+        "recentAccidents": 2,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.474829,
+          38.235388
+        ]
+      },
+      "properties": {
+        "id": "pyli_7",
+        "hazardType": "Εκτροπή οχήματος σε κατηφόρα",
+        "locationDescription": "Επαρχιακός δρόμος, Πύλη Βοιωτίας",
+        "nearestArea": "Επαρχιακός δρόμος, Πύλη Βοιωτίας",
+        "severity": "θανατηφόρο",
+        "date": "2025-08-30",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 2,
+        "recentAccidents": 1,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.455966,
+          38.258357
+        ]
+      },
+      "properties": {
+        "id": "pyli_8",
+        "hazardType": "Προσπεράσεις σε ευθεία με διπλή γραμμή",
+        "locationDescription": "Νεοχωράκι - Πύλη, Πύλη Βοιωτίας",
+        "nearestArea": "Νεοχωράκι - Πύλη, Πύλη Βοιωτίας",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2026-03-08",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 5,
+        "recentAccidents": 2,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.410936,
+          38.271837
+        ]
+      },
+      "properties": {
+        "id": "pyli_9",
+        "hazardType": "Διέλευση αγροτικών μηχανημάτων",
+        "locationDescription": "Νεοχωράκι - Πύλη, Πύλη Βοιωτίας",
+        "nearestArea": "Νεοχωράκι - Πύλη, Πύλη Βοιωτίας",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2025-09-17",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 120.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.376773,
+          38.291558
+        ]
+      },
+      "properties": {
+        "id": "pyli_10",
+        "hazardType": "Υψηλές ταχύτητες πριν τη διασταύρωση",
+        "locationDescription": "Θήβα - Νεοχωράκι, Θήβα",
+        "nearestArea": "Θήβα - Νεοχωράκι, Θήβα",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2026-05-02",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 4,
+        "recentAccidents": 2,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.340427,
+          38.295756
+        ]
+      },
+      "properties": {
+        "id": "pyli_11",
+        "hazardType": "Ολισθηρό οδόστρωμα μετά από βροχή",
+        "locationDescription": "Θήβα - Νεοχωράκι, Θήβα",
+        "nearestArea": "Θήβα - Νεοχωράκι, Θήβα",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2026-01-07",
+        "weatherFactor": "Βροχή",
+        "totalAccidents": 3,
+        "recentAccidents": 2,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.323585,
+          38.296031
+        ]
+      },
+      "properties": {
+        "id": "pyli_12",
+        "hazardType": "Συγκρούσεις στο πίσω μέρος στην ΕΟ3",
+        "locationDescription": "Ελευσίνας - Θήβας, Θήβα",
+        "nearestArea": "Ελευσίνας - Θήβας, Θήβα",
+        "severity": "ελαφρύς τραυματισμός",
+        "date": "2025-12-19",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 6,
+        "recentAccidents": 3,
+        "radiusMeters": 150.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.31754,
+          38.308497
+        ]
+      },
+      "properties": {
+        "id": "pyli_13",
+        "hazardType": "Κυκλικός κόμβος εισόδου στη Θήβα",
+        "locationDescription": "Λοξής Φάλαγγος, Θήβα",
+        "nearestArea": "Λοξής Φάλαγγος, Θήβα",
+        "severity": "υλικές ζημιές",
+        "date": "2026-04-25",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 7,
+        "recentAccidents": 3,
+        "radiusMeters": 90.0,
+        "source": "Mock data (development only)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.317944,
+          38.317715
+        ]
+      },
+      "properties": {
+        "id": "pyli_14",
+        "hazardType": "Παράσυρση πεζού στο κέντρο της Θήβας",
+        "locationDescription": "Πινδάρου, Θήβα",
+        "nearestArea": "Πινδάρου, Θήβα",
+        "severity": "σοβαρός τραυματισμός",
+        "date": "2026-06-09",
+        "weatherFactor": "Άγνωστο",
+        "totalAccidents": 3,
+        "recentAccidents": 1,
+        "radiusMeters": 80.0,
+        "source": "Mock data (development only)"
+      }
+    }
+  ]
+}
