@@ -81,6 +81,60 @@ void main() {
     expect(returning.metersAlong, greaterThan(178));
   });
 
+  test('searches the whole route when the nearby stretch is a poor match', () {
+    // Two legs 500 m apart; the driver is on the far one.
+    final twoLegs = RouteProgress(const [
+      LatLng(39.0, 21.000),
+      LatLng(39.0, 21.002),
+      LatLng(39.0045, 21.002),
+      LatLng(39.0045, 21.000),
+    ]);
+
+    final snap = twoLegs.snap(const LatLng(39.0045, 21.001), nearMeters: 0);
+
+    expect(snap.offsetMeters, lessThan(5));
+    expect(snap.metersAlong, greaterThan(600));
+  });
+
+  test('can be kept to the nearby stretch instead', () {
+    final twoLegs = RouteProgress(const [
+      LatLng(39.0, 21.000),
+      LatLng(39.0, 21.002),
+      LatLng(39.0045, 21.002),
+      LatLng(39.0045, 21.000),
+    ]);
+
+    final snap = twoLegs.snap(
+      const LatLng(39.0045, 21.001),
+      nearMeters: 0,
+      windowMeters: 100,
+      searchWholeRoute: false,
+    );
+
+    expect(
+      snap.offsetMeters,
+      greaterThan(400),
+      reason: 'the far leg is not considered, so the car reads as far off',
+    );
+    expect(snap.metersAlong, lessThan(200));
+  });
+
+  test('still searches the whole route when there is no starting point', () {
+    final twoLegs = RouteProgress(const [
+      LatLng(39.0, 21.000),
+      LatLng(39.0, 21.002),
+      LatLng(39.0045, 21.002),
+      LatLng(39.0045, 21.000),
+    ]);
+
+    final snap = twoLegs.snap(
+      const LatLng(39.0045, 21.001),
+      searchWholeRoute: false,
+    );
+
+    expect(snap.offsetMeters, lessThan(5));
+  });
+
   group('bearing', () {
     test('points east and north', () {
       expect(

@@ -102,10 +102,16 @@ class RouteProgress {
   /// Pass [nearMeters] (the last known position) to search only the nearby
   /// stretch, which is faster and avoids jumping to another part of a route
   /// that passes the same spot twice.
+  ///
+  /// When the nearby stretch turns out to be a poor match the whole route is
+  /// searched instead. Pass [searchWholeRoute] as false to skip that: while
+  /// navigating, a poor match means the driver has left the route, and
+  /// scanning thousands of points on every fix only slows the car down.
   RouteSnap snap(
     LatLng point, {
     double? nearMeters,
     double windowMeters = 300,
+    bool searchWholeRoute = true,
   }) {
     if (points.isEmpty) {
       return const RouteSnap(metersAlong: 0, offsetMeters: double.infinity);
@@ -123,7 +129,9 @@ class RouteProgress {
         _segmentAt(math.max(0, nearMeters - windowMeters)),
         _segmentAt(math.min(totalMeters, nearMeters + windowMeters)),
       );
-      if (local.offsetMeters <= _maxLocalOffsetMeters) return local;
+      if (local.offsetMeters <= _maxLocalOffsetMeters || !searchWholeRoute) {
+        return local;
+      }
     }
 
     return _snapBetween(point, 0, points.length - 2);
