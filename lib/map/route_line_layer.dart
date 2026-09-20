@@ -24,6 +24,11 @@ class RouteLineLayer {
   double _travelledFraction = 0;
   bool _updatingTrim = false;
 
+  /// False while the layers are being swapped, e.g. when a reroute replaces
+  /// the line. Trimming then would target layers that have just been
+  /// removed and are not back yet.
+  bool _layersReady = false;
+
   /// Shows [points] as the route, untrimmed.
   Future<void> show(mapbox.MapboxMap map, List<ll.LatLng> points) async {
     _points = List.unmodifiable(points);
@@ -48,6 +53,8 @@ class RouteLineLayer {
   Future<void> _pendingChange = Future<void>.value();
 
   Future<void> _restoreNow(mapbox.MapboxMap map) async {
+    _layersReady = false;
+
     try {
       await _removeFrom(map);
       if (_points.length < 2) return;
@@ -90,6 +97,8 @@ class RouteLineLayer {
         ),
         mapbox.LayerPosition(below: lineLayerId),
       );
+
+      _layersReady = true;
     } catch (error) {
       debugPrint('RSI could not draw the route: $error');
     }
@@ -120,7 +129,12 @@ class RouteLineLayer {
   }) async {
     final clamped = fraction.clamp(0.0, 1.0);
     final unchanged = (clamped - _travelledFraction).abs() < _minTrimStep;
-    if (_points.length < 2 || _updatingTrim || (unchanged && !force)) return;
+    if (!_layersReady ||
+        _points.length < 2 ||
+        _updatingTrim ||
+        (unchanged && !force)) {
+      return;
+    }
 
     _travelledFraction = clamped;
     _updatingTrim = true;
@@ -144,6 +158,7 @@ class RouteLineLayer {
   Future<void> clear(mapbox.MapboxMap map) {
     _points = const [];
     _travelledFraction = 0;
+    _layersReady = false;
 
     return _oneAtATime(() async {
       try {
