@@ -12,6 +12,7 @@ import '../config/demo_routes.dart';
 import '../core/format/navigation_labels.dart';
 import '../core/geo/bearing.dart';
 import '../core/geo/route_progress.dart';
+import '../core/navigation/off_route_detector.dart';
 import '../core/navigation/follow_viewport.dart';
 import '../core/navigation/route_guidance.dart';
 import '../core/navigation/simulation_clock.dart';
@@ -171,6 +172,16 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
   bool _liveOnRoute = true;
   double _liveFromMeters = 0;
   double _liveToMeters = 0;
+
+  final OffRouteDetector _offRouteDetector = OffRouteDetector();
+
+  /// Set while a replacement route is being fetched, so the driver is told
+  /// and a second request is not sent on the next fix.
+  bool _isRerouting = false;
+
+  /// Only the newest reroute may install its route; a reply that arrives
+  /// after the driver has gone off route again is thrown away.
+  int _rerouteSequence = 0;
   ll.LatLng? _liveFromPosition;
   ll.LatLng? _liveToPosition;
   DateTime? _liveFixAt;
@@ -699,6 +710,8 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     _shownHazardIds.clear();
     _arrivalPending = false;
     _lastSessionSave = null;
+    _offRouteDetector.reset();
+    _isRerouting = false;
 
     final now = DateTime.now();
     final gps = _currentGpsPosition;
@@ -880,7 +893,13 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
 
     final now = DateTime.now();
     final previousFixAt = _liveFixAt;
-    final snap = route.snap(position, nearMeters: _liveToMeters);
+    // Never scan the whole route here: a poor match means the driver has
+    // left it, which is handled by rerouting rather than by searching.
+    final snap = route.snap(
+      position,
+      nearMeters: _liveToMeters,
+      searchWholeRoute: false,
+    );
 
     // Ease on from wherever the car is currently drawn.
     _liveFromMeters = _displayMetersAt(now);
@@ -898,6 +917,117 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
               : gap;
     }
     _liveFixAt = now;
+
+    _checkRoute(snap.offsetMeters, position, now);
+  }
+
+  /// Watches how far the car is from the route and asks for a new one once
+  /// it is clear the driver has taken a different road.
+  void _checkRoute(double offsetMeters, ll.LatLng position, DateTime now) {
+    final wasOffRoute = _offRouteDetector.isOffRoute;
+    final verdict = _offRouteDetector.update(
+      offsetMeters: offsetMeters,
+      now: now,
+    );
+
+    if (verdict == RouteFix.reroute) {
+      unawaited(_reroute(position));
+    }
+
+    // Only rebuild when the strip on screen has to change.
+    if (mounted && _offRouteDetector.isOffRoute != wasOffRoute) {
+      setState(() {});
+    }
+  }
+
+  /// Fetches a route to the same destination from where the car actually
+  /// is, and drives on with it.
+  Future<void> _reroute(ll.LatLng from) async {
+    final destination = _selectedDestination;
+    if (_isRerouting || destination == null) return;
+
+    final sequence = ++_rerouteSequence;
+    _isRerouting = true;
+    if (mounted) setState(() {});
+
+    FullRouteDetails? details;
+    try {
+      details = await OsrmService.fetchRouteDetails(
+        start: from,
+        end: destination.location,
+        // Carry on the way the car is pointing instead of turning back.
+        startBearing: _lastHeading,
+      );
+    } catch (error) {
+      debugPrint('RSI could not fetch a new route: $error');
+    }
+
+    // A newer attempt is in charge, or the trip ended while we waited.
+    final stale = sequence != _rerouteSequence;
+    if (!mounted || stale || !ref.read(navigationProvider).isNavigating) {
+      if (!stale) _isRerouting = false;
+      return;
+    }
+
+    _isRerouting = false;
+
+    if (details == null) {
+      // Keep guiding on the old route and try again after a wait.
+      _offRouteDetector.recordRerouteFailed(DateTime.now());
+      setState(() {});
+      return;
+    }
+
+    await _followNewRoute(details, from);
+  }
+
+  /// Puts a replacement route in place of the one being driven, without
+  /// stopping navigation.
+  Future<void> _followNewRoute(
+    FullRouteDetails details,
+    ll.LatLng from,
+  ) async {
+    final now = DateTime.now();
+    final progress = RouteProgress(details.polyline);
+
+    ref.read(navigationProvider.notifier).setRoute(details);
+
+    _routeStart = from;
+    _routeProgress = progress;
+    _guidance = RouteGuidance.build(
+      route: progress,
+      steps: details.steps,
+      hazards: details.dbHazards,
+    );
+
+    // The new route starts at the car, so progress along it begins at zero.
+    _driverMeters = 0;
+    _liveFromMeters = 0;
+    _liveToMeters = 0;
+    _liveFromPosition = from;
+    _liveToPosition = from;
+    _liveOnRoute = true;
+    _liveFixAt = now;
+    _displayHeading = progress.headingAt(0);
+
+    // Hazards ahead on this route are announced again, even if they were
+    // already passed on the old one.
+    _shownHazardIds.clear();
+    _offRouteDetector.reset();
+
+    setState(() {
+      _remainingDistanceKm = details.distanceKm;
+      _remainingDurationMinutes = details.durationMinutes;
+    });
+
+    final map = _map;
+    if (map != null) {
+      await _routeLayer.show(map, details.polyline);
+      await _routeLayer.setTravelledFraction(map, 0, force: true);
+    }
+    await _drawHazards(details.dbHazards);
+
+    _saveSessionProgress(now, force: true);
   }
 
   /// Runs a few times a second, also in the background: progress, turn
@@ -927,7 +1057,11 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     final remainingMeters = route.totalMeters - meters;
     _updateRemaining(nav, remainingMeters);
 
-    if (remainingMeters <= _arrivalMeters) {
+    // Only the car actually on the route has arrived. Off it, the nearest
+    // point on the line can be the destination while the driver is on
+    // another road entirely.
+    final following = _simulationClock != null || _liveOnRoute;
+    if (following && remainingMeters <= _arrivalMeters) {
       _completeArrival();
       return;
     }
@@ -1048,13 +1182,69 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     final nav = ref.read(navigationProvider);
     final hazard = nav.activeApproachingHazard;
 
+    final offRoute = _offRouteDetector.isOffRoute;
+
     BackgroundNavigationService.updateNotification(
-      title: '${formatDistance(nav.distanceToNextTurnMeters)} · '
-          '${nav.currentTurnInstruction}',
+      title: offRoute
+          ? 'Εκτός διαδρομής'
+          : '${formatDistance(nav.distanceToNextTurnMeters)} · '
+              '${nav.currentTurnInstruction}',
       content: hazard != null
           ? 'Προσοχή: ${hazard.hazardType}'
-          : 'Άφιξη ${formatArrivalTime(_remainingDurationMinutes)} · '
-              '${_remainingDistanceKm.toStringAsFixed(1)} km',
+          : offRoute
+              ? 'Υπολογισμός νέας διαδρομής…'
+              : 'Άφιξη ${formatArrivalTime(_remainingDurationMinutes)} · '
+                  '${_remainingDistanceKm.toStringAsFixed(1)} km',
+    );
+  }
+
+  /// Replaces the turn panel while the car is off the route, because the
+  /// turn it shows belongs to a road the driver is no longer on.
+  Widget _offRouteBanner() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3C4043),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Color(0x33000000), blurRadius: 12, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.alt_route_rounded, color: Colors.white, size: 28),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Εκτός διαδρομής',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Υπολογισμός νέας διαδρομής…',
+                  style: TextStyle(color: Color(0xFFBDC1C6), fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          if (_isRerouting)
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                valueColor: AlwaysStoppedAnimation(Colors.white),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -1070,14 +1260,22 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
 
     _lastSessionSave = now;
 
+    // A simulated trip replays the saved route from where it had got to.
+    // A real one is resumed by routing afresh from where the car actually
+    // is, which also picks up any rerouting done along the way.
+    final simulating = _simulationClock != null;
+    final liveStart = _vehiclePosition ?? _currentGpsPosition ?? start;
+
     final session = NavigationSession(
-      originName: _selectedOrigin?.displayName ?? _yourLocation,
-      origin: start,
+      originName: simulating
+          ? (_selectedOrigin?.displayName ?? _yourLocation)
+          : _yourLocation,
+      origin: simulating ? start : liveStart,
       destinationName: destination.displayName,
       destination: destination.location,
-      simulate: _simulationClock != null,
+      simulate: simulating,
       simulationMultiplier: ref.read(navigationProvider).simulationMultiplier,
-      metersAlong: _driverMeters,
+      metersAlong: simulating ? _driverMeters : 0,
       savedAt: now,
     );
 
@@ -1116,7 +1314,11 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     setState(() {
       _selectedOrigin = MapboxSearchResult(
         name: session.originName,
-        location: session.origin,
+        // A real trip carries on from wherever the car is now; the saved
+        // position is only a fallback for before the first fix arrives.
+        location: session.simulate
+            ? session.origin
+            : _currentGpsPosition ?? session.origin,
       );
       _selectedDestination = MapboxSearchResult(
         name: session.destinationName,
@@ -1168,6 +1370,9 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
     _arrivalPending = false;
     _simulationClock = null;
     _cameraEaseUntil = null;
+    _offRouteDetector.reset();
+    _isRerouting = false;
+    _rerouteSequence++;
 
     unawaited(_writeSession(null));
     unawaited(NavigationAlerts.clearHazard());
@@ -1791,6 +1996,7 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
                     distanceMeters: nav.distanceToNextTurnMeters,
                     showsHazard: nav.activeApproachingHazard != null,
                     hazardDistanceMeters: nav.activeHazardDistanceMeters,
+                    isOffRoute: _offRouteDetector.isOffRoute,
                   ),
                 ),
 
@@ -1801,11 +2007,15 @@ class _LiveTrackingScreenState extends ConsumerState<LiveTrackingScreen>
                   right: 12,
                   child: Column(
                     children: [
-                      TurnByTurnPanel(
-                        instruction: nav.currentTurnInstruction,
-                        distanceMeters: nav.distanceToNextTurnMeters,
-                        maneuverIcon: _maneuverIcon(nav.currentTurnInstruction),
-                      ),
+                      if (_offRouteDetector.isOffRoute)
+                        _offRouteBanner()
+                      else
+                        TurnByTurnPanel(
+                          instruction: nav.currentTurnInstruction,
+                          distanceMeters: nav.distanceToNextTurnMeters,
+                          maneuverIcon:
+                              _maneuverIcon(nav.currentTurnInstruction),
+                        ),
                       if (nav.activeApproachingHazard != null) ...[
                         const SizedBox(height: 10),
                         SafetyAlertCard(
