@@ -45,4 +45,37 @@ void main() {
     expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('says when a new route is being worked out', (tester) async {
+    await tester.pumpWidget(
+      _inSmallWindow(
+        const CompactGuidanceStrip(
+          maneuverIcon: Icons.turn_right_rounded,
+          distanceMeters: 250,
+          isOffRoute: true,
+        ),
+      ),
+    );
+
+    expect(find.text('Εκτός διαδρομής'), findsOneWidget);
+    expect(find.text('250 m'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a hazard still comes first when off the route', (tester) async {
+    await tester.pumpWidget(
+      _inSmallWindow(
+        const CompactGuidanceStrip(
+          maneuverIcon: Icons.turn_right_rounded,
+          distanceMeters: 250,
+          isOffRoute: true,
+          showsHazard: true,
+          hazardDistanceMeters: 400,
+        ),
+      ),
+    );
+
+    expect(find.text('400 m'), findsOneWidget);
+    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+  });
 }
