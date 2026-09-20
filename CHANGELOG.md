@@ -3,6 +3,49 @@
 Notable changes to Road Safety Insights. All accident, road segment, hazard
 and rental data in these releases is mock data for development.
 
+## [Unreleased]
+
+Branch: `feature/safety-map-rentals-onboarding`
+
+### Added
+
+- **Rerouting when the driver leaves the route.** Navigation used to keep
+  counting down turns on the original route however far the car strayed
+  from it.
+  - `OffRouteDetector` treats the car as off the route after 3 consecutive
+    fixes more than 50 m from the line, so GPS noise in towns does not
+    throw the route away.
+  - A replacement route is fetched from the car's position and swapped in
+    without stopping the trip: new turn instructions, new hazards, new
+    route line, progress reset to the start of the new leg.
+  - The request carries the car's heading as an OSRM `bearings` value, so
+    the new route carries on the way the driver is going instead of
+    opening with a U-turn.
+  - A request is sent at most once every 12 s, and a failed one backs off
+    4 s, 8 s, 16 s up to 30 s. Guidance and hazard alerts keep running on
+    the old route while that happens, so a tunnel or a dead connection
+    does not leave the driver with nothing.
+  - The turn panel, the floating window strip and the ongoing notification
+    say "Εκτός διαδρομής" instead of showing a turn from a road the car is
+    no longer on. Hazard warnings still take priority over all of it.
+  - Rerouting never happens in simulation, where the car follows the line
+    exactly.
+
+### Changed
+
+- A live trip is saved from where the car is rather than from where it set
+  off, so resuming after Android closes the app carries on from there,
+  including any rerouting done on the way. Simulated trips still resume
+  along the saved route from the distance reached.
+
+### Fixed
+
+- Arrival can no longer be announced while the car is off the route, where
+  the nearest point on the route line can be the destination although the
+  driver is on another road.
+- `RouteProgress.snap` no longer falls back to scanning the whole route on
+  every GPS fix off the line (about 41 µs a fix on a 6,500-point route).
+
 ## [0.2.0] - 2026-09-14
 
 Version code 2. Branch: `feature/safety-map-rentals-onboarding`
