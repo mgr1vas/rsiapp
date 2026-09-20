@@ -291,8 +291,12 @@ class OsrmService {
           continue;
         }
 
-        final roadName =
-            step['name']?.toString() ?? '';
+        // Many roads have no name in the map data but do have a number
+        // (e.g. "Ε.Ο.5"), which still tells the driver where to go.
+        final name = step['name']?.toString().trim() ?? '';
+        final roadName = name.isNotEmpty
+            ? name
+            : step['ref']?.toString().trim() ?? '';
 
         parsedSteps.add(
           NavigationStep(
