@@ -43,34 +43,25 @@ class OsrmService {
   static const Duration _requestTimeout =
       Duration(seconds: 15);
 
+  /// Fetches a route from [start] to [end], with the hazards along it.
+  ///
+  /// Pass [startBearing] (the direction the car is travelling) when
+  /// rerouting, so the new route carries on the way the driver is already
+  /// going instead of opening with a U-turn.
   static Future<FullRouteDetails?> fetchRouteDetails({
     required LatLng start,
     required LatLng end,
+    double? startBearing,
   }) async {
     try {
       // Make sure the accident database is ready BEFORE
       // we attempt to match hazards against the route.
       await HazardDbService.initializeDatabase();
 
-      final baseUrl = AppConfig.routingBaseUrl
-          .trim()
-          .replaceFirst(
-            RegExp(r'/$'),
-            '',
-          );
-
-      final coordinates =
-          '${start.longitude},${start.latitude};'
-          '${end.longitude},${end.latitude}';
-
-      final url = Uri.parse(
-        '$baseUrl/route/v1/driving/$coordinates',
-      ).replace(
-        queryParameters: const {
-          'overview': 'full',
-          'geometries': 'geojson',
-          'steps': 'true',
-        },
+      final url = routeUrl(
+        start: start,
+        end: end,
+        startBearing: startBearing,
       );
 
       final response = await http
@@ -181,6 +172,45 @@ class OsrmService {
 
       return null;
     }
+  }
+
+  /// How far either side of [startBearing] a road may point and still be
+  /// used to leave from. Wide enough for a bend, narrow enough to rule out
+  /// the opposite carriageway.
+  static const int _bearingToleranceDegrees = 45;
+
+  @visibleForTesting
+  static Uri routeUrl({
+    required LatLng start,
+    required LatLng end,
+    double? startBearing,
+  }) {
+    final baseUrl = AppConfig.routingBaseUrl.trim().replaceFirst(
+          RegExp(r'/$'),
+          '',
+        );
+
+    final coordinates =
+        '${start.longitude},${start.latitude};'
+        '${end.longitude},${end.latitude}';
+
+    return Uri.parse('$baseUrl/route/v1/driving/$coordinates').replace(
+      queryParameters: {
+        'overview': 'full',
+        'geometries': 'geojson',
+        'steps': 'true',
+        // OSRM wants one entry per coordinate. The destination is left
+        // empty so it can be reached from any direction.
+        if (startBearing != null)
+          'bearings': '${_wrapDegrees(startBearing)},'
+              '$_bearingToleranceDegrees;',
+      },
+    );
+  }
+
+  static int _wrapDegrees(double bearing) {
+    final wrapped = bearing.round() % 360;
+    return wrapped < 0 ? wrapped + 360 : wrapped;
   }
 
   static List<LatLng> _parseRouteGeometry(
