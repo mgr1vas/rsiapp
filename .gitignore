@@ -12,6 +12,9 @@ android/.gradle/
 android/captures/
 android/app/.cxx/
 
+# Machine-specific SDK paths; Flutter regenerates this on each build.
+android/local.properties
+
 # Signing keys
 android/key.properties
 *.jks
@@ -23,3 +26,6 @@ __pycache__/
 # OS and editor files
 .DS_Store
 .idea/
+
+# Local-only working notes, kept out of the repo.
+docs/store-submission-checklist.md
