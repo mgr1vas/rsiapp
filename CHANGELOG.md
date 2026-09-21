@@ -3,9 +3,9 @@
 Notable changes to Road Safety Insights. All accident, road segment, hazard
 and rental data in these releases is mock data for development.
 
-## [Unreleased]
+## [0.3.0] - 2026-09-21
 
-Branch: `feature/safety-map-rentals-onboarding`
+Version code 3. Branch: `new-app`
 
 ### Added
 

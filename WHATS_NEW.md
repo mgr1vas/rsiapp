@@ -1,5 +1,14 @@
 # What's new in Road Safety Insights
 
+**Version 0.3.0 · September 2026**
+
+**Finds a new way when you take a different road**
+Miss a turn or choose another road, and the app now works out a new route from where you are within a few seconds, instead of carrying on with directions for the road you left. The new route continues in the direction you're driving, so it won't tell you to turn around. While it's working, the screen says "Εκτός διαδρομής" (off route). Risky-spot warnings keep working the whole time.
+
+---
+
+## In version 0.2.0
+
 **Version 0.2.0 · September 2026**
 
 This update is all about driving with the app. Navigation is smoother, keeps going when you use other apps, can shrink into a small floating window, and warns you about risky spots even when the app isn't on screen. Finding the right place is easier too.

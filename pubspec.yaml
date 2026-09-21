@@ -1,7 +1,7 @@
 name: rsi
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.2.0+2
+version: 0.3.0+3
 
 environment:
   sdk: ^3.11.1
