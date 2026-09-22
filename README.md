@@ -1,4 +1,4 @@
-# RSI — Road Safety Insights
+# RSI | Road Safety Insights
 
 Το **RSI (Road Safety Insights)** είναι μία εφαρμογή πλοήγησης σε Flutter με βασικό στόχο την ενίσχυση της οδικής ασφάλειας.
 
